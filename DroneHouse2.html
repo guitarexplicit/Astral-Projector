@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drone House</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Uncial+Antiqua&family=Metal+Mania&family=Dancing+Script:wght@400;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+            background-image: url('https://placehold.co/1920x1080/404040/5c5c5c?text=Castle+Walls');
+            background-size: cover;
+            background-position: center;
+        }
+        .castle-title {
+            font-family: 'Metal Mania', cursive;
+            font-size: 4rem;
+            font-weight: bold;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            background-image: linear-gradient(to right, #8b0000, #400000, #8b0000);
+        }
+        .italic-script {
+            font-family: 'Dancing Script', cursive;
+            font-style: italic;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        .gothic-bold {
+            font-family: 'Uncial+Antiqua', serif;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #d1d5db;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            border: 1px solid #000000;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: #904c4c;
+            cursor: pointer;
+            box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+            margin-top: -8px;
+        }
+        input[type=range]::-moz-range-thumb {
+            border: 1px solid #000000;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: #904c4c;
+            cursor: pointer;
+            box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+        }
+        .ornamental-arrow {
+            display: inline-block;
+            vertical-align: middle;
+            width: 2rem;
+            height: 2rem;
+            fill: #d1d5db;
+            margin: 0 1rem;
+        }
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: -1;
+        }
+        .castle-button {
+            background-image: linear-gradient(to bottom, #888, #555);
+            border: 2px solid #333;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+            text-shadow: 1px 1px 2px #000;
+            transition: all 0.3s ease-in-out;
+        }
+        .castle-button:hover, .castle-button:active {
+            box-shadow: 0 0 15px #fff, 0 0 25px #fff, 0 0 35px #fff;
+            color: #fff;
+            text-shadow: 0 0 5px #fff;
+        }
+        .slider-box {
+            background-color: #5c0a0a;
+            border: 2px solid #fff;
+            border-radius: 0.75rem;
+            padding: 1rem;
+        }
+    </style>
+</head>
+<body class="text-gray-100 flex items-center justify-center min-h-screen relative">
+    <div class="overlay"></div>
+
+    <div class="container mx-auto p-4 flex flex-col items-center justify-center text-center z-10">
+        <h1 class="castle-title mb-4">
+            Drone House
+        </h1>
+        <p class="italic-script text-gray-300 mb-8 max-w-2xl flex items-center justify-center">
+            <svg class="ornamental-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M482.3 192C482.3 227.1 465.1 259.1 437.2 277.4L372.9 319.4C366.5 323.5 364.7 331.4 368.8 337.8C372.9 344.2 380.8 346.1 387.2 342L451.5 300C475.2 284.6 491.5 259.2 497.1 230.1L510.1 189.1C514.8 165 504.6 139.7 483.5 127.3L427.6 94.62C421.4 91.07 413.2 92.11 408.8 97.46L24.8 345.5C18.15 354.2 18.25 365.1 24.99 373.9C31.73 382.7 42.14 387.1 52.8 387.1H320.1V448C320.1 456.8 327.3 464 336.1 464H415.1C424.8 464 432.1 471.2 432.1 480C432.1 488.8 424.8 496 415.1 496H336.1C309.1 496 288.1 474.9 288.1 448V384H128.1L247.1 230.1C254.1 221.7 254.1 209.1 247.1 200.7C240.1 192.3 229.8 187.1 219.1 187.1L48.8 187.1C40.13 187.1 32.13 182.8 27.6 175.7L0.1989 133.7C-4.322 126.6-1.503 118.2 4.939 114.2L68.8 72.2C96.64 53.86 128.8 41.34 163.7 35.79L204.7 22.79C225.8 15.53 241.6 22.84 250.9 39.46L279.1 86.87C282.8 93.36 282.4 100.9 278.4 107.1L214.1 149.1C207.7 153.2 205.9 161.1 210 167.5C214.1 173.9 222 175.7 228.4 171.7L292.7 129.7C316.4 114.3 332.7 88.88 338.3 59.88L351.3 18.88C356 6.062 366.4 0.0573 378.5 0.0573C390.6 0.0573 401.1 6.062 405.8 18.88L418.8 59.88C425.2 88.88 441.5 114.3 465.2 129.7L489.1 145.9C496 150 499 157.9 494.5 165.1L482.3 192zM384.1 384H352.1V448H384.1V384z"/></svg>
+            Press the button to start, and again to stop.
+            <svg class="ornamental-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M29.75 320.1C29.75 285 46.94 253.1 74.77 235.6L139.1 193.6C145.5 189.5 147.3 181.6 143.2 175.2C139.1 168.8 131.2 166.9 124.8 171L60.5 213C36.8 228.4 20.5 253.8 14.9 282.9L1.938 323.9C-2.771 348 7.375 373.3 28.5 385.7L84.38 418.4C90.63 421.9 98.88 420.9 103.2 415.6L487.2 167.5C493.9 158.8 493.8 147.9 487 139.1C480.3 130.3 469.9 125.9 459.2 125.9H192.1V64C192.1 55.19 184.8 48 176.1 48H96.12C87.31 48 80.12 40.88 80.12 32C80.12 23.19 87.31 16 96.12 16H176.1C203.2 16 224.1 37.06 224.1 64V128H384.1L265.1 282.9C258.1 291.3 258.1 303.9 265.1 312.3C272.1 320.7 282.4 325.1 293.1 325.1L463.2 325.1C471.9 325.1 479.9 329.2 484.4 336.3L511.8 378.3C516.3 385.4 513.5 393.8 507.1 397.8L443.2 439.8C415.3 456.1 399.1 482.2 393.5 511.2L380.5 552.2C375.8 565 365.4 570.9 353.3 570.9C341.2 570.9 330.7 565 326 552.2L313 511.2C306.6 482.2 290.3 456.9 266.6 441.5L242.7 425.3C235.8 421.2 232.8 413.3 237.3 406.1L29.75 320.1zM128.1 128h32v-64h-32v64z"/></svg>
+        </p>
+
+        <button
+            id="playButton"
+            class="px-8 py-4 md:px-12 md:py-6 text-xl md:text-2xl font-bold rounded-full
+                   text-gray-100 castle-button">
+            Generate Sound
+        </button>
+        
+        <button
+            id="phaseInvertButton"
+            class="mt-4 px-6 py-3 text-lg font-semibold rounded-full
+                   bg-gray-600 text-white
+                   hover:bg-gray-500 active:bg-gray-700
+                   focus:outline-none focus:ring-4 focus:ring-gray-300
+                   transform transition-all duration-300 ease-in-out gothic-bold">
+            Invert Phase (Off)
+        </button>
+
+
+        <div class="slider-box mt-8 grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-4xl">
+            <div class="flex flex-col items-center">
+                <label for="volumeSlider" class="text-lg mb-2 gothic-bold">Volume: <span id="volumeValue">50%</span></label>
+                <input type="range" id="volumeSlider" min="0" max="100" value="50" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+            </div>
+
+            <div class="flex flex-col items-center">
+                <label for="pitchSlider" class="text-lg mb-2 gothic-bold">Pitch Bend: <span id="pitchValue">0</span></label>
+                <input type="range" id="pitchSlider" min="-1200" max="1200" value="0" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+            </div>
+
+            <div class="flex flex-col items-center">
+                <label for="ringModSlider" class="text-lg mb-2 gothic-bold">Ring Mod: <span id="ringModValue">0%</span></label>
+                <input type="range" id="ringModSlider" min="0" max="100" value="0" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+            </div>
+        </div>
+
+        <div class="slider-box mt-8 grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-4xl">
+            <div class="flex flex-col items-center">
+                <label for="haasEffectSlider" class="text-lg mb-2 gothic-bold">Haas Effect: <span id="haasEffectValue">0ms</span></label>
+                <input type="range" id="haasEffectSlider" min="0" max="50" value="0" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+            </div>
+
+            <div class="flex flex-col items-center">
+                <label for="sampleReductionSlider" class="text-lg mb-2 gothic-bold">Sample Reduction: <span id="sampleReductionValue">1</span></label>
+                <input type="range" id="sampleReductionSlider" min="1" max="16" value="1" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+            </div>
+
+            <div class="flex flex-col items-center">
+                <label for="masterLfoSlider" class="text-lg mb-2 gothic-bold">Master LFO: <span id="masterLfoValue">0.5Hz</span></label>
+                <input type="range" id="masterLfoSlider" min="0.1" max="10" step="0.1" value="0.5" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+            </div>
+        </div>
+        
+        <div class="slider-box mt-8 grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
+            <div class="flex flex-col items-center">
+                <label for="fuzzWahSlider" class="text-lg mb-2 gothic-bold">Fuzz/Wah: <span id="fuzzWahValue">0%</span></label>
+                <input type="range" id="fuzzWahSlider" min="0" max="100" value="0" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+            </div>
+            <div class="flex flex-col items-center">
+                <label for="granularDelaySlider" class="text-lg mb-2 gothic-bold">Granular Delay: <span id="granularDelayValue">0</span></label>
+                <input type="range" id="granularDelaySlider" min="0" max="100" value="0" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+            </div>
+        </div>
+
+        <div class="slider-box mt-8 grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-4xl">
+            <div class="flex flex-col items-center">
+                <label for="stereoWideningSlider" class="text-lg mb-2 gothic-bold">Stereo Widening: <span id="stereoWideningValue">0%</span></label>
+                <input type="range" id="stereoWideningSlider" min="0" max="100" value="0" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+            </div>
+            <div class="flex flex-col items-center">
+                <label for="tremoloDepthSlider" class="text-lg mb-2 gothic-bold">Tremolo Depth: <span id="tremoloDepthValue">0%</span></label>
+                <input type="range" id="tremoloDepthSlider" min="0" max="100" value="0" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+            </div>
+            <div class="flex flex-col items-center">
+                <label for="tremoloSpeedSlider" class="text-lg mb-2 gothic-bold">Tremolo Speed: <span id="tremoloSpeedValue">5Hz</span></label>
+                <input type="range" id="tremoloSpeedSlider" min="0.1" max="10" step="0.1" value="5" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+            </div>
+        </div>
+
+
+        <script>
+            window.onload = function() {
+                const playButton = document.getElementById('playButton');
+                const phaseInvertButton = document.getElementById('phaseInvertButton');
+                
+                const volumeSlider = document.getElementById('volumeSlider');
+                const volumeValue = document.getElementById('volumeValue');
+                const pitchSlider = document.getElementById('pitchSlider');
+                const pitchValue = document.getElementById('pitchValue');
+                const ringModSlider = document.getElementById('ringModSlider');
+                const ringModValue = document.getElementById('ringModValue');
+                const haasEffectSlider = document.getElementById('haasEffectSlider');
+                const haasEffectValue = document.getElementById('haasEffectValue');
+                const sampleReductionSlider = document.getElementById('sampleReductionSlider');
+                const sampleReductionValue = document.getElementById('sampleReductionValue');
+                const masterLfoSlider = document.getElementById('masterLfoSlider');
+                const masterLfoValue = document.getElementById('masterLfoValue');
+                const fuzzWahSlider = document.getElementById('fuzzWahSlider');
+                const fuzzWahValue = document.getElementById('fuzzWahValue');
+                const granularDelaySlider = document.getElementById('granularDelaySlider');
+                const granularDelayValue = document.getElementById('granularDelayValue');
+
+                const stereoWideningSlider = document.getElementById('stereoWideningSlider');
+                const stereoWideningValue = document.getElementById('stereoWideningValue');
+                const tremoloDepthSlider = document.getElementById('tremoloDepthSlider');
+                const tremoloDepthValue = document.getElementById('tremoloDepthValue');
+                const tremoloSpeedSlider = document.getElementById('tremoloSpeedSlider');
+                const tremoloSpeedValue = document.getElementById('tremoloSpeedValue');
+
+                let audioContext = null;
+                let activeNodes = [];
+                let activeOscillators = [];
+                let isPlaying = false;
+                let masterGain = null;
+                let ringModGain = null;
+                let haasDelay = null;
+                let sampleReducerNode = null;
+                let phaseInverterGain = null;
+                let fuzzNode = null;
+                let wahFilter = null;
+                let granularDelayNode = null;
+                let tremoloLfo = null;
+                let tremoloGain = null;
+                let stereoPanner = null;
+                let currentSampleRate = 1;
+                let phaseInverted = false;
+
+                // Create a curve for the fuzz effect (WaveShaperNode)
+                function makeFuzzCurve(amount) {
+                    const k = typeof amount === 'number' ? amount : 50;
+                    const n_samples = 44100;
+                    const curve = new Float32Array(n_samples);
+                    const deg = Math.PI / 180;
+                    for (let i = 0; i < n_samples; i++) {
+                        const x = i * 2 / n_samples - 1;
+                        curve[i] = (3 + k) * x * 20 * deg / (Math.PI + k * Math.abs(x));
+                    }
+                    return curve;
+                }
+
+                // Update slider value displays in real-time
+                volumeSlider.addEventListener('input', (e) => {
+                    volumeValue.textContent = `${e.target.value}%`;
+                    if (audioContext && masterGain) {
+                        const gainValue = e.target.value / 100;
+                        masterGain.gain.setValueAtTime(gainValue, audioContext.currentTime);
+                    }
+                });
+
+                pitchSlider.addEventListener('input', (e) => {
+                    const pitchCents = parseFloat(e.target.value);
+                    pitchValue.textContent = `${pitchCents}`;
+                    if (isPlaying && audioContext) {
+                        activeOscillators.forEach(oscillator => {
+                            oscillator.detune.setValueAtTime(pitchCents, audioContext.currentTime);
+                        });
+                    }
+                });
+
+                ringModSlider.addEventListener('input', (e) => {
+                    ringModValue.textContent = `${e.target.value}%`;
+                    if (audioContext && ringModGain) {
+                        const gainValue = e.target.value / 100;
+                        ringModGain.gain.setValueAtTime(gainValue, audioContext.currentTime);
+                    }
+                });
+                
+                haasEffectSlider.addEventListener('input', (e) => {
+                    const delayMs = parseFloat(e.target.value);
+                    haasEffectValue.textContent = `${delayMs}ms`;
+                    if (audioContext && haasDelay) {
+                        haasDelay.delayTime.setValueAtTime(delayMs / 1000, audioContext.currentTime);
+                    }
+                });
+                
+                sampleReductionSlider.addEventListener('input', (e) => {
+                    currentSampleRate = parseInt(e.target.value, 10);
+                    sampleReductionValue.textContent = `${currentSampleRate}`;
+                });
+                
+                masterLfoSlider.addEventListener('input', (e) => {
+                    const lfoFreq = parseFloat(e.target.value);
+                    masterLfoValue.textContent = `${lfoFreq}Hz`;
+                    if (isPlaying && audioContext && window.masterLFO) {
+                        window.masterLFO.frequency.setValueAtTime(lfoFreq, audioContext.currentTime);
+                    }
+                });
+
+                fuzzWahSlider.addEventListener('input', (e) => {
+                    const fuzzAmount = parseFloat(e.target.value);
+                    fuzzWahValue.textContent = `${fuzzAmount}%`;
+                    if (audioContext && fuzzNode && wahFilter) {
+                        wahFilter.frequency.setValueAtTime(fuzzAmount * 100 + 500, audioContext.currentTime);
+                        fuzzNode.curve = makeFuzzCurve(fuzzAmount);
+                    }
+                });
+                
+                granularDelaySlider.addEventListener('input', (e) => {
+                    granularDelayValue.textContent = `${e.target.value}`;
+                });
+
+                stereoWideningSlider.addEventListener('input', (e) => {
+                    const panValue = parseFloat(e.target.value) / 100;
+                    stereoWideningValue.textContent = `${e.target.value}%`;
+                    if (audioContext && stereoPanner) {
+                         // Map 0-100 to pan values -1 to 1, with 50 being 0 (center)
+                        const pannerAmount = (panValue - 0.5) * 2;
+                        stereoPanner.pan.setValueAtTime(pannerAmount, audioContext.currentTime);
+                    }
+                });
+
+                tremoloDepthSlider.addEventListener('input', (e) => {
+                    const depth = parseFloat(e.target.value) / 100;
+                    tremoloDepthValue.textContent = `${e.target.value}%`;
+                    if (audioContext && tremoloGain) {
+                        tremoloGain.gain.setValueAtTime(depth, audioContext.currentTime);
+                    }
+                });
+
+                tremoloSpeedSlider.addEventListener('input', (e) => {
+                    const speed = parseFloat(e.target.value);
+                    tremoloSpeedValue.textContent = `${speed}Hz`;
+                    if (audioContext && tremoloLfo) {
+                        tremoloLfo.frequency.setValueAtTime(speed, audioContext.currentTime);
+                    }
+                });
+
+
+                // Helper for phase inversion
+                phaseInvertButton.addEventListener('click', () => {
+                    if (!audioContext) return;
+                    phaseInverted = !phaseInverted;
+                    if (phaseInverted) {
+                        phaseInverterGain.gain.setValueAtTime(-1, audioContext.currentTime);
+                        phaseInvertButton.textContent = 'Invert Phase (On)';
+                        phaseInvertButton.classList.remove('bg-gray-600');
+                        phaseInvertButton.classList.add('bg-green-600');
+                    } else {
+                        phaseInverterGain.gain.setValueAtTime(1, audioContext.currentTime);
+                        phaseInvertButton.textContent = 'Invert Phase (Off)';
+                        phaseInvertButton.classList.remove('bg-green-600');
+                        phaseInvertButton.classList.add('bg-gray-600');
+                    }
+                });
+                
+                // An array of "patches" or configurations to randomly pull from
+                const synthPatches = [
+                    // Patch 1: Subtractive Synth Pad
+                    () => ({
+                        numOscillators: 3,
+                        oscillatorTypes: ['sawtooth', 'triangle', 'sine'],
+                        filterCutoff: 1500 + Math.random() * 500,
+                        filterQ: Math.random() * 5 + 1,
+                        delayFeedback: Math.random() * 0.4 + 0.2,
+                        lfoEnabled: true
+                    }),
+                    // Patch 2: Bassy Drone
+                    () => ({
+                        numOscillators: 2,
+                        oscillatorTypes: ['sine', 'square'],
+                        filterCutoff: 500 + Math.random() * 200,
+                        filterQ: Math.random() * 8 + 3,
+                        delayFeedback: 0,
+                        lfoEnabled: false
+                    }),
+                    // Patch 3: Harsh Random Lead
+                    () => ({
+                        numOscillators: 4,
+                        oscillatorTypes: ['sawtooth', 'square', 'sawtooth', 'square'],
+                        filterCutoff: 8000,
+                        filterQ: Math.random() * 2 + 1,
+                        delayFeedback: Math.random() * 0.7,
+                        lfoEnabled: true
+                    }),
+                    // Patch 4: Simple Random
+                    () => ({
+                        numOscillators: Math.floor(Math.random() * 4) + 2,
+                        oscillatorTypes: ['sine', 'sawtooth', 'triangle', 'square'],
+                        filterCutoff: Math.random() * 8000 + 1000,
+                        filterQ: Math.random() * 8 + 1,
+                        delayFeedback: Math.random() * 0.6 + 0.2,
+                        lfoEnabled: Math.random() > 0.5
+                    })
+                ];
+
+                function stopSound() {
+                    if (!isPlaying) return;
+
+                    const now = audioContext.currentTime;
+                    const releaseTime = 0.5;
+
+                    masterGain.gain.cancelScheduledValues(now);
+                    masterGain.gain.setValueAtTime(masterGain.gain.value, now);
+                    masterGain.gain.linearRampToValueAtTime(0.001, now + releaseTime);
+
+                    setTimeout(() => {
+                        activeNodes.forEach(node => {
+                            try {
+                                node.stop();
+                            } catch (e) { /* Node might not have a stop method */ }
+                        });
+                        activeNodes = [];
+                        activeOscillators = [];
+                        playButton.disabled = false;
+                        playButton.textContent = 'Generate Sound';
+                        isPlaying = false;
+                    }, releaseTime * 1000);
+                }
+
+                function playSound() {
+                    if (isPlaying) {
+                        stopSound();
+                        return;
+                    }
+                    
+                    if (!audioContext) {
+                        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    }
+                    if (audioContext.state === 'suspended') {
+                        audioContext.resume();
+                    }
+                    
+                    playButton.disabled = true;
+                    playButton.textContent = 'Stopping...'; 
+
+                    const now = audioContext.currentTime;
+                    const patch = synthPatches[Math.floor(Math.random() * synthPatches.length)]();
+
+                    // --- Master Effects Chain ---
+                    masterGain = audioContext.createGain();
+                    
+                    phaseInverterGain = audioContext.createGain();
+                    if(phaseInverted) {
+                        phaseInverterGain.gain.setValueAtTime(-1, now);
+                    } else {
+                        phaseInverterGain.gain.setValueAtTime(1, now);
+                    }
+                    
+                    const ringModOsc = audioContext.createOscillator();
+                    ringModOsc.type = 'sine';
+                    ringModOsc.frequency.setValueAtTime(Math.random() * 500 + 100, now);
+                    
+                    ringModGain = audioContext.createGain();
+                    const initialRingMod = ringModSlider.value / 100;
+                    ringModGain.gain.setValueAtTime(initialRingMod, now);
+                    ringModOsc.connect(ringModGain.gain);
+
+                    const masterFilter = audioContext.createBiquadFilter();
+                    masterFilter.type = 'lowpass';
+                    masterFilter.frequency.setValueAtTime(patch.filterCutoff, now);
+                    masterFilter.Q.setValueAtTime(patch.filterQ, now);
+
+                    const masterLfo = audioContext.createOscillator();
+                    window.masterLFO = masterLfo;
+                    masterLfo.type = 'sine';
+                    const masterLfoFreq = parseFloat(masterLfoSlider.value);
+                    masterLfo.frequency.setValueAtTime(masterLfoFreq, now);
+
+                    const lfoGain = audioContext.createGain();
+                    lfoGain.gain.setValueAtTime(patch.filterCutoff * 0.5, now);
+                    masterLfo.connect(lfoGain);
+                    lfoGain.connect(masterFilter.frequency);
+                    masterLfo.start(now);
+                    
+                    const masterDelay = audioContext.createDelay(1.0);
+                    masterDelay.delayTime.setValueAtTime(Math.random() * 0.4 + 0.1, now);
+                    const delayFeedback = audioContext.createGain();
+                    delayFeedback.gain.setValueAtTime(patch.delayFeedback, now);
+                    
+                    const haasDelayTime = parseFloat(haasEffectSlider.value) / 1000;
+                    haasDelay = audioContext.createDelay(0.1);
+                    haasDelay.delayTime.setValueAtTime(haasDelayTime, now);
+
+                    // FUZZ/WAH NODES
+                    const fuzzAmount = parseFloat(fuzzWahSlider.value);
+                    fuzzNode = audioContext.createWaveShaper();
+                    fuzzNode.curve = makeFuzzCurve(fuzzAmount);
+                    
+                    wahFilter = audioContext.createBiquadFilter();
+                    wahFilter.type = 'lowpass';
+                    wahFilter.Q.setValueAtTime(10, now);
+                    wahFilter.frequency.setValueAtTime(fuzzAmount * 100 + 500, now);
+                    
+                    // GRANULAR DELAY NODE
+                    granularDelayNode = audioContext.createScriptProcessor(2048, 1, 1);
+                    let lastSample = 0;
+                    let sampleHoldCounter = 0;
+                    granularDelayNode.onaudioprocess = function(event) {
+                        const input = event.inputBuffer.getChannelData(0);
+                        const output = event.outputBuffer.getChannelData(0);
+                        const holdTime = parseInt(granularDelaySlider.value, 10);
+                        const dryWetMix = holdTime / 100;
+                        const wetMix = dryWetMix;
+                        const dryMix = 1.0 - dryWetMix;
+
+                        for (let i = 0; i < input.length; i++) {
+                            if (sampleHoldCounter === 0) {
+                                lastSample = input[i];
+                                sampleHoldCounter = holdTime;
+                            }
+                            sampleHoldCounter--;
+                            
+                            const processedSample = lastSample;
+                            output[i] = (input[i] * dryMix) + (processedSample * wetMix);
+                        }
+                    };
+
+                    const bufferSize = 2048;
+                    sampleReducerNode = audioContext.createScriptProcessor(bufferSize, 1, 1);
+                    sampleReducerNode.onaudioprocess = function(event) {
+                        const inputBuffer = event.inputBuffer.getChannelData(0);
+                        const outputBuffer = event.outputBuffer.getChannelData(0);
+                        let holdSample = 0;
+                        for (let i = 0; i < inputBuffer.length; i++) {
+                            if (i % currentSampleRate === 0) {
+                                holdSample = inputBuffer[i];
+                            }
+                            outputBuffer[i] = holdSample;
+                        }
+                    };
+
+                    // NEW TREMOLO NODES
+                    tremoloLfo = audioContext.createOscillator();
+                    tremoloLfo.type = 'sine';
+                    const tremoloSpeed = parseFloat(tremoloSpeedSlider.value);
+                    tremoloLfo.frequency.setValueAtTime(tremoloSpeed, now);
+
+                    tremoloGain = audioContext.createGain();
+                    const tremoloDepth = parseFloat(tremoloDepthSlider.value) / 100;
+                    tremoloGain.gain.setValueAtTime(tremoloDepth, now);
+
+                    tremoloLfo.connect(tremoloGain.gain);
+                    tremoloLfo.start(now);
+                    
+                    // NEW STEREO PANNER NODE
+                    stereoPanner = audioContext.createStereoPanner();
+                    const stereoPanValue = parseFloat(stereoWideningSlider.value) / 100;
+                    stereoPanner.pan.setValueAtTime((stereoPanValue - 0.5) * 2, now);
+                    
+                    // --- AUDIO CHAIN CONNECTIONS ---
+                    ringModGain.connect(masterFilter);
+                    masterFilter.connect(sampleReducerNode); 
+                    
+                    sampleReducerNode.connect(fuzzNode);
+                    fuzzNode.connect(wahFilter);
+                    
+                    wahFilter.connect(tremoloGain);
+                    tremoloGain.connect(stereoPanner);
+                    
+                    stereoPanner.connect(phaseInverterGain);
+                    phaseInverterGain.connect(masterGain); 
+                    
+                    sampleReducerNode.connect(masterDelay);
+                    sampleReducerNode.connect(haasDelay);
+                    sampleReducerNode.connect(granularDelayNode);
+
+                    masterDelay.connect(delayFeedback);
+                    delayFeedback.connect(masterGain);
+                    haasDelay.connect(masterGain);
+                    granularDelayNode.connect(masterGain);
+
+                    masterGain.connect(audioContext.destination);
+
+                    const initialVolume = parseFloat(volumeSlider.value) / 100;
+                    masterGain.gain.setValueAtTime(initialVolume, now);
+
+                    ringModOsc.start(now);
+                    activeNodes.push(ringModOsc, sampleReducerNode, masterLfo, tremoloLfo, granularDelayNode);
+
+                    activeOscillators = [];
+                    const pitchCents = parseFloat(pitchSlider.value);
+                    for (let i = 0; i < patch.numOscillators; i++) {
+                        const oscillator = audioContext.createOscillator();
+                        oscillator.type = patch.oscillatorTypes[i % patch.oscillatorTypes.length];
+                        oscillator.frequency.setValueAtTime(Math.random() * 400 + 100, now);
+                        oscillator.detune.setValueAtTime(pitchCents, now);
+                        
+                        const oscGain = audioContext.createGain();
+                        oscGain.gain.setValueAtTime(Math.random() * 0.3 + 0.1, now);
+
+                        if (patch.lfoEnabled) {
+                            const lfo = audioContext.createOscillator();
+                            lfo.type = 'sine';
+                            lfo.frequency.setValueAtTime(Math.random() * 2 + 0.5, now);
+                            const lfoGain = audioContext.createGain();
+                            lfoGain.gain.setValueAtTime(Math.random() * 0.5 + 0.1, now);
+                            lfo.connect(lfoGain);
+                            lfoGain.connect(oscGain.gain);
+                            lfo.start(now);
+                            activeNodes.push(lfo);
+                        }
+
+                        oscillator.connect(oscGain);
+                        oscGain.connect(ringModGain);
+
+                        oscillator.start(now);
+                        activeNodes.push(oscillator);
+                        activeOscillators.push(oscillator);
+                    }
+
+                    isPlaying = true;
+                    playButton.disabled = false;
+                    playButton.textContent = 'Stop Sound';
+                }
+
+                playButton.addEventListener('click', () => {
+                    if (isPlaying) {
+                        stopSound();
+                    } else {
+                        playSound();
+                    }
+                });
+                
+                // --- MIDI Implementation ---
+                if (navigator.requestMIDIAccess) {
+                    navigator.requestMIDIAccess()
+                        .then(onMIDISuccess, onMIDIFailure);
+                } else {
+                    console.warn("Web MIDI API is not supported in this browser.");
+                }
+
+                function onMIDISuccess(midiAccess) {
+                    for (var input of midiAccess.inputs.values()) {
+                        input.onmidimessage = getMIDIMessage;
+                    }
+                }
+
+                function onMIDIFailure() {
+                    console.error('Could not access your MIDI devices.');
+                }
+                
+                function getMIDIMessage(message) {
+                    var command = message.data[0];
+                    var controller = message.data[1];
+                    var value = message.data[2];
+
+                    // MIDI CC messages are command 176
+                    if (command === 176) {
+                        // Normalize MIDI value (0-127) to the slider's range
+                        
+                        if (controller === 1) { // Pitch Bend
+                            const pitchBendRange = 2400; // -1200 to 1200
+                            const newPitch = (value / 127) * pitchBendRange - (pitchBendRange / 2);
+                            pitchSlider.value = newPitch;
+                            pitchSlider.dispatchEvent(new Event('input'));
+                        } else if (controller === 2) { // Granular Delay
+                            const granularDelayRange = 100;
+                            const newGranularDelay = (value / 127) * granularDelayRange;
+                            granularDelaySlider.value = newGranularDelay;
+                            granularDelaySlider.dispatchEvent(new Event('input'));
+                        } else if (controller === 71) { // Ring Mod
+                            const ringModRange = 100;
+                            const newRingMod = (value / 127) * ringModRange;
+                            ringModSlider.value = newRingMod;
+                            ringModSlider.dispatchEvent(new Event('input'));
+                        } else if (controller === 72) { // Haas Effect
+                            const haasEffectRange = 50;
+                            const newHaasEffect = (value / 127) * haasEffectRange;
+                            haasEffectSlider.value = newHaasEffect;
+                            haasEffectSlider.dispatchEvent(new Event('input'));
+                        } else if (controller === 73) { // Sample Reduction
+                            const sampleReductionRange = 15; // 1 to 16
+                            const newSampleReduction = Math.round((value / 127) * sampleReductionRange) + 1;
+                            sampleReductionSlider.value = newSampleReduction;
+                            sampleReductionSlider.dispatchEvent(new Event('input'));
+                        } else if (controller === 74) { // Master LFO
+                            const masterLfoRange = 9.9; // 0.1 to 10
+                            const newMasterLfo = (value / 127) * masterLfoRange + 0.1;
+                            masterLfoSlider.value = newMasterLfo;
+                            masterLfoSlider.dispatchEvent(new Event('input'));
+                        } else if (controller === 75) { // Fuzz/Wah
+                            const fuzzWahRange = 100;
+                            const newFuzzWah = (value / 127) * fuzzWahRange;
+                            fuzzWahSlider.value = newFuzzWah;
+                            fuzzWahSlider.dispatchEvent(new Event('input'));
+                        } else if (controller === 76) { // Stereo Widening
+                            const stereoWideningRange = 100;
+                            const newStereoWidening = (value / 127) * stereoWideningRange;
+                            stereoWideningSlider.value = newStereoWidening;
+                            stereoWideningSlider.dispatchEvent(new Event('input'));
+                        } else if (controller === 77) { // Tremolo Depth
+                            const tremoloDepthRange = 100;
+                            const newTremoloDepth = (value / 127) * tremoloDepthRange;
+                            tremoloDepthSlider.value = newTremoloDepth;
+                            tremoloDepthSlider.dispatchEvent(new Event('input'));
+                        } else if (controller === 78) { // Tremolo Speed
+                            const tremoloSpeedRange = 9.9; // 0.1 to 10
+                            const newTremoloSpeed = (value / 127) * tremoloSpeedRange + 0.1;
+                            tremoloSpeedSlider.value = newTremoloSpeed;
+                            tremoloSpeedSlider.dispatchEvent(new Event('input'));
+                        }
+                    }
+                }
+            };
+        </script>
+    </div>
+
+</body>
+</html>
