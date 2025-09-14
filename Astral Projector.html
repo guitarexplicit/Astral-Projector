@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Astral Projector</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/tone@14.9.117/build/Tone.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Great+Vibes&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #2c0e3e; /* Dark Purple */
+            color: #ffffff;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            background-color: #4a1d63; /* Medium Purple */
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+        h1, h2 {
+            font-weight: 700;
+        }
+        .psychedelic-text {
+            color: #d12c8b; /* Magenta */
+            text-shadow: 0 0 10px #ff3399, 0 0 20px #ff3399;
+        }
+        .art-nouveau-font {
+            font-family: 'Great Vibes', cursive;
+        }
+        .btn {
+            background-color: #d12c8b; /* Magenta */
+            color: #ffffff;
+            font-weight: bold;
+            border-radius: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            border: 2px solid transparent;
+        }
+        .btn:hover {
+            background-color: #ff3399; /* Lighter Magenta */
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            transform: translateY(-2px);
+            border: 2px solid #ffffff;
+        }
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        .toggle-switch {
+            width: 60px;
+            height: 34px;
+            position: relative;
+            display: inline-block;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #555;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #d12c8b;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        .db-meter-container {
+            width: 100%;
+            background-color: #333;
+            border-radius: 0.5rem;
+            height: 20px;
+            overflow: hidden;
+        }
+        .db-meter-bar {
+            height: 100%;
+            background-color: #4CAF50;
+            width: 0;
+            transition: width 0.1s ease;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #ffffff;
+            border: 2px solid #d12c8b;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 5px #d12c8b;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #ffffff;
+            border: 2px solid #d12c8b;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 5px #d12c8b;
+        }
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #999;
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+        input[type="range"]:hover {
+            opacity: 1;
+        }
+        .error-log {
+            min-height: 150px;
+            background-color: #1e092b;
+            border: 2px solid #d12c8b;
+            padding: 1rem;
+            font-family: monospace;
+            overflow-y: scroll;
+            border-radius: 0.75rem;
+            color: #d12c8b;
+        }
+    </style>
+</head>
+<body class="p-8">
+
+    <div class="container">
+        <h1 class="text-4xl text-center psychedelic-text art-nouveau-font mb-6">Astral Projector</h1>
+        <p class="text-center mb-10 text-white opacity-80">A fully functional, advanced psychoacoustic and psychedelic audio tool.</p>
+
+        <!-- Main Controls -->
+        <div class="flex flex-col md:flex-row gap-4 justify-center items-center mb-8">
+            <button id="start-audio-btn" class="btn">Start Audio</button>
+            <button id="hard-reset-btn" class="btn bg-red-600 hover:bg-red-700">Hard Reset</button>
+        </div>
+
+        <!-- Audio Source Selection -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 p-6 bg-purple-900 bg-opacity-30 rounded-2xl border-2 border-magenta-500">
+            <div>
+                <h2 class="text-2xl mb-2 text-magenta-300">Audio Sources</h2>
+                <div class="flex flex-col gap-4">
+                    <div class="flex items-center gap-2">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="sampler-toggle">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="text-white">Sampler</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="instruments-toggle">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="text-white">Instruments</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="input-toggle">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="text-white">Audio Input</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sampler Controls -->
+            <div id="sampler-controls" class="hidden">
+                <h3 class="text-xl mb-2 text-magenta-300">Sampler</h3>
+                <input type="file" id="sample-file-input" accept="audio/*" class="mb-4 text-white opacity-80">
+                <button id="play-sample-btn" class="btn mb-4 w-full">Play/Stop Sample</button>
+                <div class="flex items-center gap-2 mb-4">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="loop-sample-toggle">
+                        <span class="slider"></span>
+                    </label>
+                    <span class="text-white">Loop Sample</span>
+                </div>
+            </div>
+
+            <!-- Instrument Controls -->
+            <div id="instrument-controls" class="hidden">
+                <h3 class="text-xl mb-2 text-magenta-300">Instruments</h3>
+                <div class="mb-4">
+                    <label for="instrument-select" class="block text-white mb-2">Select Instrument:</label>
+                    <select id="instrument-select" class="w-full p-2 rounded-lg bg-gray-800 text-white">
+                        <option value="amSynth">AM Synth (Psycho-resilience)</option>
+                        <option value="fmSynth">FM Synth (Tonal Fusion)</option>
+                        <option value="duoSynth">Duo Synth (Binaural Beats)</option>
+                        <option value="membraneSynth">Membrane Synth (Sonic Resonance)</option>
+                        <option value="monoSynth">Mono Synth (Subtle Harmonics)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Audio Input Controls -->
+            <div id="input-controls" class="hidden">
+                <h3 class="text-xl mb-2 text-magenta-300">Audio Input</h3>
+                <p class="text-sm opacity-80 mb-2">Microphone/Line-In</p>
+                <div class="db-meter-container">
+                    <div id="db-meter-bar" class="db-meter-bar"></div>
+                </div>
+                <p id="db-meter-text" class="text-center text-xs mt-1">-- dB</p>
+            </div>
+        </div>
+
+        <!-- Advanced Effects Chain & Controls -->
+        <div class="mb-8 p-6 bg-purple-900 bg-opacity-30 rounded-2xl border-2 border-magenta-500">
+            <h2 class="text-2xl mb-4 text-magenta-300">Advanced Effects Chain</h2>
+            <div class="flex items-center gap-4 mb-4">
+                <label for="effect-select" class="text-white">Select Effect:</label>
+                <select id="effect-select" class="w-full p-2 rounded-lg bg-gray-800 text-white">
+                    <option value="none">-- Select an Effect --</option>
+                    <option value="psychoPhaser">Psycho-Phaser (Spectral Panning)</option>
+                    <option value="freqEcho">Frequency-Shifting Echo</option>
+                    <option value="harmonicResonator">Harmonic Resonator</option>
+                    <option value="spectralGate">Spectral Gate</option>
+                    <option value="auditoryStreamer">Auditory Streamer</option>
+                    <option value="transposiTuner">Transposi-Tuner</option>
+                    <option value="vibratoTremolo">Vibrato-Tremolo</option>
+                    <option value="ringModulator">Ring Modulator (Inharmonic Resonance)</option>
+                    <option value="adaptiveFeedback">Adaptive Feedback</option>
+                    <option value="viscousDampener">Viscous Dampener</option>
+                    <option value="subtleSaturation">Subtle Saturation (Valve Simulation)</option>
+                </select>
+                <button id="toggle-params-btn" class="btn">Show/Hide Parameters</button>
+            </div>
+            
+            <div id="effect-params-container" class="mt-4 hidden">
+                <!-- Parameters will be dynamically inserted here -->
+            </div>
+        </div>
+        
+        <!-- Vocoder Section -->
+        <div id="vocoder-section" class="mb-8 p-6 bg-purple-900 bg-opacity-30 rounded-2xl border-2 border-magenta-500">
+            <h2 class="text-2xl mb-4 text-magenta-300">Vocoder Module</h2>
+            <div class="flex flex-wrap items-center gap-4 mb-4">
+                <label for="carrier-select" class="text-white">Carrier Signal:</label>
+                <select id="carrier-select" class="p-2 rounded-lg bg-gray-800 text-white">
+                    <option value="instruments">Instruments</option>
+                    <option value="sampler">Sampler</option>
+                </select>
+                <label for="modulator-select" class="text-white">Modulator Signal:</label>
+                <select id="modulator-select" class="p-2 rounded-lg bg-gray-800 text-white">
+                    <option value="mic">Microphone Input</option>
+                </select>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="vocoder-toggle">
+                    <span class="slider"></span>
+                </label>
+                <span class="text-white">Enable Vocoder</span>
+            </div>
+            <p class="text-sm opacity-80">This module is an application of the vocoding principles from the DAFX handbook.</p>
+        </div>
+
+        <!-- Momentary Switches & Master Volume -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 p-6 bg-purple-900 bg-opacity-30 rounded-2xl border-2 border-magenta-500">
+            <div>
+                <h2 class="text-2xl mb-4 text-magenta-300">Momentary Effects</h2>
+                <div class="flex flex-wrap gap-4">
+                    <button id="lfo-surge-btn" class="btn w-32">LFO Surge</button>
+                    <button id="reverse-filter-btn" class="btn w-32">Reverse Filter</button>
+                    <button id="zero-crossing-btn" class="btn w-32 bg-purple-700">Zero-Crossing</button>
+                </div>
+            </div>
+            <div>
+                <h2 class="text-2xl mb-4 text-magenta-300">Master Controls</h2>
+                <div class="mb-4">
+                    <label for="master-volume-slider" class="block text-white mb-2">Master Volume</label>
+                    <input type="range" id="master-volume-slider" min="-60" max="0" value="-6" step="1" class="w-full">
+                </div>
+                <button id="record-btn" class="btn bg-green-600 hover:bg-green-700 w-full mb-4">Record Output</button>
+                <a id="download-recording-btn" class="btn bg-gray-500 hover:bg-gray-600 w-full text-center" style="display: none;">Download Recording</a>
+            </div>
+        </div>
+        
+        <!-- MIDI Controls -->
+        <div class="mb-8 p-6 bg-purple-900 bg-opacity-30 rounded-2xl border-2 border-magenta-500">
+            <h2 class="text-2xl mb-4 text-magenta-300">MIDI Integration</h2>
+            <div class="flex flex-wrap gap-4 mb-4">
+                <button id="midi-connect-btn" class="btn">Connect MIDI</button>
+                <button id="midi-source-btn" class="btn">Switch MIDI Source</button>
+            </div>
+            <p id="midi-status" class="text-sm opacity-80 mb-4">MIDI Status: Disconnected</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="midi-cc-target-select" class="block text-white mb-2">MIDI CC Target</label>
+                    <select id="midi-cc-target-select" class="w-full p-2 rounded-lg bg-gray-800 text-white">
+                        <option value="instrument">Instrument / Sampler</option>
+                        <option value="effects">Effects Chain</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="midi-cc-effect-select" class="block text-white mb-2">Map CCs to Effect/Instrument</label>
+                    <select id="midi-cc-effect-select" class="w-full p-2 rounded-lg bg-gray-800 text-white">
+                        <!-- Options will be populated dynamically -->
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer & Error Log -->
+        <div class="flex flex-col gap-4">
+            <p class="text-center text-white text-opacity-70 text-sm art-nouveau-font mt-4">
+                For the advancement of psychedelia and psychedelic sound design.
+            </p>
+            <div class="bg-purple-900 bg-opacity-30 rounded-2xl border-2 border-magenta-500 p-4">
+                <h3 class="text-xl mb-2 text-magenta-300">Error & Debug Log</h3>
+                <pre id="error-log" class="error-log"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Core Application Logic ---
+
+        // UI Elements
+        const startAudioBtn = document.getElementById('start-audio-btn');
+        const hardResetBtn = document.getElementById('hard-reset-btn');
+        const samplerToggle = document.getElementById('sampler-toggle');
+        const instrumentsToggle = document.getElementById('instruments-toggle');
+        const inputToggle = document.getElementById('input-toggle');
+        const samplerControls = document.getElementById('sampler-controls');
+        const instrumentControls = document.getElementById('instrument-controls');
+        const inputControls = document.getElementById('input-controls');
+        const playSampleBtn = document.getElementById('play-sample-btn');
+        const loopSampleToggle = document.getElementById('loop-sample-toggle');
+        const sampleFileInput = document.getElementById('sample-file-input');
+        const instrumentSelect = document.getElementById('instrument-select');
+        const dbMeterBar = document.getElementById('db-meter-bar');
+        const dbMeterText = document.getElementById('db-meter-text');
+        const effectSelect = document.getElementById('effect-select');
+        const toggleParamsBtn = document.getElementById('toggle-params-btn');
+        const effectParamsContainer = document.getElementById('effect-params-container');
+        const masterVolumeSlider = document.getElementById('master-volume-slider');
+        const lfoSurgeBtn = document.getElementById('lfo-surge-btn');
+        const reverseFilterBtn = document.getElementById('reverse-filter-btn');
+        const zeroCrossingBtn = document.getElementById('zero-crossing-btn');
+        const recordBtn = document.getElementById('record-btn');
+        const downloadRecordingBtn = document.getElementById('download-recording-btn');
+        const midiConnectBtn = document.getElementById('midi-connect-btn');
+        const midiSourceBtn = document.getElementById('midi-source-btn');
+        const midiStatus = document.getElementById('midi-status');
+        const midiCcTargetSelect = document.getElementById('midi-cc-target-select');
+        const midiCcEffectSelect = document.getElementById('midi-cc-effect-select');
+        const vocoderToggle = document.getElementById('vocoder-toggle');
+        const carrierSelect = document.getElementById('carrier-select');
+        const modulatorSelect = document.getElementById('modulator-select');
+        const errorLog = document.getElementById('error-log');
+
+        // Global State
+        let isInitialized = false;
+        let activeSource = null;
+        let isRecording = false;
+        let midi = null;
+        let midiCcMappings = {};
+        let midiSourceIndex = 0; // 0 for instrument, 1 for sampler
+
+        // Tone.js Components
+        let masterCompressor;
+        let masterLimiter;
+        let recorder;
+        let effectsChain;
+        let sampler, instruments, userMedia;
+        let sourceNodes = {
+            'sampler': null,
+            'instruments': null,
+            'input': null
+        };
+        // Custom Effects Modules based on PDF concepts
+        let psychoPhaser, freqEcho, harmonicResonator, spectralGate, auditoryStreamer, transposiTuner, vibratoTremolo, ringModulator, adaptiveFeedback, viscousDampener, subtleSaturation;
+        let vocoder;
+        const availableEffects = {
+            'psychoPhaser': null,
+            'freqEcho': null,
+            'harmonicResonator': null,
+            'spectralGate': null,
+            'auditoryStreamer': null,
+            'transposiTuner': null,
+            'vibratoTremolo': null,
+            'ringModulator': null,
+            'adaptiveFeedback': null,
+            'viscousDampener': null,
+            'subtleSaturation': null
+        };
+        
+        let lfoSurgeGain;
+        let reverseFilter, reverseFilterLFO;
+        let lfoSurge;
+        let zeroCrossingShaper;
+
+        // --- Logging Utility ---
+        function log(message) {
+            const now = new Date();
+            const time = now.toLocaleTimeString();
+            if (errorLog) {
+                errorLog.innerHTML += `[${time}] ${message}\n`;
+                errorLog.scrollTop = errorLog.scrollHeight;
+            }
+            console.log(message);
+        }
+        
+        // --- MIDI CC Mapping Logic ---
+        function mapMidiCC(cc, value) {
+            const mappedValue = value / 127;
+            const target = midiCcTargetSelect.value;
+
+            // CC 1: Pitch Bend
+            if (cc === 1) {
+                if (activeSource === 'instruments') {
+                    const synthName = instrumentSelect.value;
+                    const synth = instruments.get(synthName);
+                    if (synth && synth.detune) {
+                        synth.detune.value = (mappedValue - 0.5) * 2 * 200; // 2 semitones up/down
+                        log(`MIDI CC 1 (Pitch Bend): Detune to ${synth.detune.value.toFixed(2)} cents`);
+                    } else {
+                        log('MIDI CC 1 (Pitch Bend): Not supported by this instrument.');
+                    }
+                } else {
+                    log('MIDI CC 1 (Pitch Bend): Only available for instruments.');
+                }
+            }
+
+            // CC 2: Volume Swell with Compression
+            if (cc === 2) {
+                const targetNode = sourceNodes[activeSource];
+                if (targetNode) {
+                    if (value >= 64) {
+                        const threshold = Tone.Midi.mtof(127 - value) - 20;
+                        masterCompressor.threshold.value = threshold;
+                        log(`MIDI CC 2 (Compressor): Threshold to ${masterCompressor.threshold.value.toFixed(2)} dB`);
+                    } else {
+                        const gainValue = mappedValue * 0.5;
+                        targetNode.volume.value = Tone.gainToDb(gainValue);
+                        log(`MIDI CC 2 (Volume): Volume to ${targetNode.volume.value.toFixed(2)} dB`);
+                    }
+                }
+            }
+
+            // CC 71-78: Mapped to active effect/instrument
+            if (cc >= 71 && cc <= 78) {
+                const mappedTarget = midiCcTargetSelect.value === 'effects' ? effectSelect.value : instrumentSelect.value;
+                if (!midiCcMappings[mappedTarget]) {
+                    log(`MIDI Mapping Error: No parameters found for ${mappedTarget}.`);
+                    return;
+                }
+                const paramIndex = cc - 71;
+                const param = midiCcMappings[mappedTarget][paramIndex];
+                if (param) {
+                    const node = param.node;
+                    const parameter = param.param;
+                    const min = param.min || 0;
+                    const max = param.max || 1;
+                    const newValue = min + (max - min) * mappedValue;
+                    node[parameter].value = newValue;
+                    log(`Mapped MIDI CC ${cc} to ${mappedTarget}.${parameter} with value: ${newValue.toFixed(2)}`);
+                }
+            }
+        }
+        
+        // --- Tone.js & Web Audio API Initialization ---
+        async function initializeAudio() {
+            if (isInitialized) {
+                log("Audio is already initialized.");
+                return;
+            }
+            try {
+                log("Initializing Tone.js and AudioContext...");
+                await Tone.start();
+                log("AudioContext is running.");
+
+                if(masterVolumeSlider) {
+                    Tone.Destination.volume.value = parseFloat(masterVolumeSlider.value);
+                }
+
+                masterLimiter = new Tone.Limiter(-1).toDestination();
+                masterCompressor = new Tone.Compressor(-20, 3).connect(masterLimiter);
+                effectsChain = new Tone.Chain().toDestination();
+                effectsChain.connect(masterCompressor);
+
+                recorder = new Tone.Recorder();
+                Tone.Destination.connect(recorder);
+
+                sampler = new Tone.Sampler().connect(effectsChain);
+                sourceNodes['sampler'] = sampler;
+                
+                instruments = new Tone.Chain(
+                    new Tone.AMSynth(),
+                    new Tone.FMSynth(),
+                    new Tone.DuoSynth(),
+                    new Tone.MembraneSynth(),
+                    new Tone.MonoSynth()
+                ).connect(effectsChain);
+                sourceNodes['instruments'] = instruments;
+                
+                userMedia = new Tone.UserMedia().connect(effectsChain);
+                userMedia.open().then(() => {
+                    log("Microphone access granted!");
+                    const meter = new Tone.Meter();
+                    userMedia.connect(meter);
+                    const meterLoop = new Tone.Loop(() => {
+                        const db = meter.getValue();
+                        const percent = (db + 60) / 60 * 100;
+                        dbMeterBar.style.width = `${Math.min(100, Math.max(0, percent))}%`;
+                        dbMeterText.innerText = `${db.toFixed(1)} dB`;
+                    }, 0.1).start();
+                }).catch(e => {
+                    log(`Error opening mic: ${e}`);
+                });
+                sourceNodes['input'] = userMedia;
+
+                // --- Custom Advanced Effects ---
+                psychoPhaser = new Tone.Chain(
+                    new Tone.Phaser({ frequency: 15, octaves: 5, baseFrequency: 300 }),
+                    new Tone.LFO({ frequency: "2n", min: 300, max: 600 }).start()
+                );
+                psychoPhaser.get(0).frequency.value = 0;
+                psychoPhaser.get(1).connect(psychoPhaser.get(0).baseFrequency);
+                availableEffects['psychoPhaser'] = psychoPhaser;
+                midiCcMappings['psychoPhaser'] = [
+                    { node: psychoPhaser.get(0), param: 'frequency', min: 0.1, max: 20 },
+                    { node: psychoPhaser.get(0), param: 'octaves', min: 2, max: 10 },
+                    { node: psychoPhaser.get(0), param: 'baseFrequency', min: 100, max: 1000 },
+                    { node: psychoPhaser.get(1), param: 'frequency', min: 0.1, max: 10 }
+                ];
+                
+                freqEcho = new Tone.Chain(
+                    new Tone.FeedbackDelay({ delayTime: "8n", feedback: 0.5 }),
+                    new Tone.FrequencyShifter({ frequency: 0 })
+                );
+                freqEcho.get(0).connect(freqEcho.get(1));
+                freqEcho.get(1).connect(freqEcho.get(0));
+                availableEffects['freqEcho'] = freqEcho;
+                midiCcMappings['freqEcho'] = [
+                    { node: freqEcho.get(0), param: 'delayTime', min: 0.01, max: 1 },
+                    { node: freqEcho.get(0), param: 'feedback', min: 0, max: 0.9 },
+                    { node: freqEcho.get(1), param: 'frequency', min: -100, max: 100 }
+                ];
+                
+                harmonicResonator = new Tone.Chain(
+                    new Tone.Filter({ type: "bandpass", frequency: 220, Q: 10 }),
+                    new Tone.Filter({ type: "bandpass", frequency: 440, Q: 10 }),
+                    new Tone.Filter({ type: "bandpass", frequency: 660, Q: 10 }),
+                );
+                availableEffects['harmonicResonator'] = harmonicResonator;
+                midiCcMappings['harmonicResonator'] = [
+                    { node: harmonicResonator.get(0), param: 'frequency', min: 100, max: 500 },
+                    { node: harmonicResonator.get(1), param: 'frequency', min: 200, max: 1000 },
+                    { node: harmonicResonator.get(2), param: 'frequency', min: 300, max: 1500 },
+                    { node: harmonicResonator.get(0), param: 'Q', min: 1, max: 20 },
+                    { node: harmonicResonator.get(1), param: 'Q', min: 1, max: 20 },
+                    { node: harmonicResonator.get(2), param: 'Q', min: 1, max: 20 }
+                ];
+
+                spectralGate = new Tone.Gate(0.2, 0.5);
+                availableEffects['spectralGate'] = spectralGate;
+                midiCcMappings['spectralGate'] = [
+                    { node: spectralGate, param: 'threshold', min: -60, max: 0 },
+                    { node: spectralGate, param: 'sustain', min: 0.1, max: 1 },
+                ];
+                
+                auditoryStreamer = new Tone.Chain(
+                    new Tone.Panner3D(0, 0, 0),
+                    new Tone.PitchShift(0)
+                );
+                const streamLFO = new Tone.LFO(0.5, -45, 45).start();
+                streamLFO.connect(auditoryStreamer.get(0).positionX);
+                const pitchLFO = new Tone.LFO(0.1, -2, 2).start();
+                pitchLFO.connect(auditoryStreamer.get(1).pitch);
+                availableEffects['auditoryStreamer'] = auditoryStreamer;
+                midiCcMappings['auditoryStreamer'] = [
+                    { node: streamLFO, param: 'frequency', min: 0.1, max: 2 },
+                    { node: streamLFO, param: 'min', min: -90, max: 0 },
+                    { node: streamLFO, param: 'max', min: 0, max: 90 },
+                    { node: pitchLFO, param: 'frequency', min: 0.05, max: 1 },
+                    { node: pitchLFO, param: 'min', min: -12, max: 0 },
+                    { node: pitchLFO, param: 'max', min: 0, max: 12 }
+                ];
+
+                transposiTuner = new Tone.PitchShift(0);
+                const shiftLFO = new Tone.LFO("8n", -6, 6).start();
+                shiftLFO.connect(transposiTuner.pitch);
+                availableEffects['transposiTuner'] = transposiTuner;
+                midiCcMappings['transposiTuner'] = [
+                    { node: transposiTuner, param: 'pitch', min: -24, max: 24 },
+                    { node: shiftLFO, param: 'frequency', min: 0.01, max: 2 }
+                ];
+
+                vibratoTremolo = new Tone.Vibrato(5, 0.5);
+                const tremoloEffect = new Tone.Tremolo(5, 0.5);
+                availableEffects['vibratoTremolo'] = vibratoTremolo;
+                midiCcMappings['vibratoTremolo'] = [
+                    { node: vibratoTremolo, param: 'frequency', min: 0.1, max: 20 },
+                    { node: vibratoTremolo, param: 'depth', min: 0, max: 1 },
+                    { node: tremoloEffect, param: 'frequency', min: 0.1, max: 20 },
+                    { node: tremoloEffect, param: 'depth', min: 0, max: 1 }
+                ];
+                
+                ringModulator = new Tone.RingModulator(100, 100).connect(effectsChain);
+                availableEffects['ringModulator'] = ringModulator;
+                midiCcMappings['ringModulator'] = [
+                    { node: ringModulator, param: 'frequency', min: 10, max: 1000 },
+                    { node: ringModulator, param: 'distortion', min: 0, max: 100 }
+                ];
+
+                const adaptiveMeter = new Tone.Meter();
+                adaptiveFeedback = new Tone.FeedbackDelay("8n", 0.5);
+                Tone.connect(adaptiveFeedback, adaptiveMeter);
+                const feedbackLoop = new Tone.Loop(() => {
+                    const meterVal = adaptiveMeter.getValue();
+                    const newFeedback = Tone.Midi.mtof(meterVal + 60) / 1000;
+                    adaptiveFeedback.feedback.value = newFeedback;
+                }, 0.1).start();
+                availableEffects['adaptiveFeedback'] = adaptiveFeedback;
+                midiCcMappings['adaptiveFeedback'] = [
+                    { node: adaptiveFeedback, param: 'delayTime', min: 0.01, max: 1 },
+                    { node: adaptiveFeedback, param: 'feedback', min: 0, max: 0.9 }
+                ];
+
+                viscousDampener = new Tone.Filter({ type: "lowpass", frequency: 5000, Q: 1 });
+                const viscousLFO = new Tone.LFO(0.5, 200, 20000).start();
+                viscousLFO.connect(viscousDampener.frequency);
+                availableEffects['viscousDampener'] = viscousDampener;
+                midiCcMappings['viscousDampener'] = [
+                    { node: viscousDampener, param: 'frequency', min: 200, max: 20000 },
+                    { node: viscousDampener, param: 'Q', min: 0.1, max: 20 },
+                    { node: viscousLFO, param: 'frequency', min: 0.1, max: 5 }
+                ];
+
+                subtleSaturation = new Tone.WaveShaper(amount => {
+                    const k = 2 * amount / (1 - amount);
+                    return x => (1 + k) * x / (1 + k * Math.abs(x));
+                });
+                availableEffects['subtleSaturation'] = subtleSaturation;
+                midiCcMappings['subtleSaturation'] = [
+                    { node: subtleSaturation, param: 'curve', min: 0, max: 1, type: 'custom' }
+                ];
+                
+                // Vocoder
+                vocoder = new Tone.Vocoder({
+                    carrier: new Tone.FMSynth(),
+                    modulator: new Tone.Synth()
+                });
+                
+                // Momentary effects
+                lfoSurge = new Tone.LFO("4n", 0, 1).stop();
+                lfoSurgeGain = new Tone.Gain(0).connect(Tone.Destination.volume);
+                
+                reverseFilter = new Tone.Filter(200, "lowpass").toDestination();
+                reverseFilterLFO = new Tone.LFO(1, 200, 20000).stop();
+                reverseFilterLFO.connect(reverseFilter.frequency);
+                
+                zeroCrossingShaper = new Tone.WaveShaper(i => (Math.abs(i) < 0.01 ? 0 : i));
+
+                isInitialized = true;
+                log("Audio engine ready. Please select an audio source.");
+            } catch (e) {
+                log(`Initialization Error: ${e.message}`);
+            }
+        }
+        
+        // --- UI Event Listeners ---
+        startAudioBtn.addEventListener('click', initializeAudio);
+        
+        hardResetBtn.addEventListener('click', async () => {
+            log("Hard Reset requested...");
+            try {
+                if (Tone.Transport.state !== 'stopped') Tone.Transport.stop();
+                await Tone.Destination.dispose();
+                isInitialized = false;
+                initializeAudio();
+                log("Audio engine has been reset.");
+            } catch (e) {
+                log(`Reset Error: ${e.message}`);
+            }
+        });
+
+        // Source Toggles
+        const sourceToggles = [samplerToggle, instrumentsToggle, inputToggle];
+        const sourceControlContainers = [samplerControls, instrumentControls, inputControls];
+        const sourceNames = ['sampler', 'instruments', 'input'];
+        
+        sourceToggles.forEach((toggle, index) => {
+            toggle.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    activeSource = sourceNames[index];
+                    log(`Source switched to: ${activeSource}`);
+                    sourceToggles.forEach((otherToggle, otherIndex) => {
+                        if (otherToggle !== toggle) {
+                            otherToggle.checked = false;
+                            if(sourceNodes[sourceNames[otherIndex]]) sourceNodes[sourceNames[otherIndex]].disconnect();
+                        }
+                    });
+                    sourceControlContainers.forEach((container, containerIndex) => {
+                        container.style.display = (containerIndex === index) ? 'block' : 'none';
+                    });
+                    if (sourceNodes[activeSource]) sourceNodes[activeSource].connect(effectsChain);
+                } else {
+                    if (sourceNodes[activeSource]) sourceNodes[activeSource].disconnect();
+                    activeSource = null;
+                    sourceControlContainers[index].style.display = 'none';
+                }
+            });
+        });
+
+        // Sampler
+        sampleFileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const url = URL.createObjectURL(file);
+            log(`Loading sample from file: ${file.name}`);
+            try {
+                await sampler.load(url);
+                log("Sample loaded successfully!");
+            } catch (e) {
+                log(`Sample loading failed: ${e.message}`);
+            }
+        });
+        playSampleBtn.addEventListener('click', () => {
+            if (sampler.state === 'started') {
+                sampler.stop();
+                log("Sampler stopped.");
+            } else {
+                sampler.start();
+                log("Sampler started.");
+            }
+        });
+        loopSampleToggle.addEventListener('change', (e) => {
+            sampler.loop = e.target.checked;
+            log(`Sampler looping: ${sampler.loop}`);
+        });
+
+        // Effect Chain & Parameter Toggle
+        let currentEffect = null;
+        effectSelect.addEventListener('change', (e) => {
+            if (!isInitialized) return log("Please start the audio engine first.");
+            
+            if (currentEffect) {
+                effectsChain.disconnect(currentEffect);
+                effectsChain.connect(masterCompressor);
+                log(`Disconnected effect: ${e.target.value}`);
+            }
+            
+            const selectedEffect = e.target.value;
+            currentEffect = availableEffects[selectedEffect];
+            if (currentEffect) {
+                effectsChain.disconnect(masterCompressor);
+                effectsChain.connect(currentEffect);
+                currentEffect.connect(masterCompressor);
+                log(`Connected effect: ${selectedEffect}`);
+            }
+
+            midiCcEffectSelect.innerHTML = '';
+            if (midiCcMappings[selectedEffect]) {
+                const option = document.createElement('option');
+                option.value = selectedEffect;
+                option.textContent = selectedEffect;
+                midiCcEffectSelect.appendChild(option);
+            }
+        });
+
+        toggleParamsBtn.addEventListener('click', () => {
+            if (effectParamsContainer.style.display === 'block') {
+                effectParamsContainer.style.display = 'none';
+            } else {
+                const selectedEffect = effectSelect.value;
+                if (!midiCcMappings[selectedEffect]) {
+                    return log(`No mappable parameters found for ${selectedEffect}.`);
+                }
+                
+                effectParamsContainer.innerHTML = `<h4 class="text-white text-lg mb-2">Parameters for ${selectedEffect}:</h4>`;
+                
+                midiCcMappings[selectedEffect].forEach(param => {
+                    const sliderDiv = document.createElement('div');
+                    sliderDiv.className = 'mb-4';
+                    sliderDiv.innerHTML = `
+                        <label for="${selectedEffect}-${param.param}" class="block text-white mb-2">${param.param}</label>
+                        <input type="range" id="${selectedEffect}-${param.param}" min="${param.min}" max="${param.max}" step="0.01" value="${param.node[param.param].value}">
+                        <span class="text-sm opacity-80">${param.node[param.param].value.toFixed(2)}</span>
+                    `;
+                    
+                    const slider = sliderDiv.querySelector('input');
+                    const valueSpan = sliderDiv.querySelector('span');
+                    slider.addEventListener('input', (e) => {
+                        param.node[param.param].value = parseFloat(e.target.value);
+                        valueSpan.innerText = `${param.node[param.param].value.toFixed(2)}`;
+                    });
+                    
+                    effectParamsContainer.appendChild(sliderDiv);
+                });
+                
+                effectParamsContainer.style.display = 'block';
+            }
+        });
+        
+        // Vocoder Toggle
+        vocoderToggle.addEventListener('change', (e) => {
+            if (!isInitialized) return log("Please start the audio engine first.");
+            const isVocoderEnabled = e.target.checked;
+            if (isVocoderEnabled) {
+                const carrierSource = sourceNodes[carrierSelect.value];
+                const modulatorSource = userMedia;
+                if (!carrierSource || !modulatorSource) return log("Vocoder requires both carrier and modulator signals.");
+                
+                log("Enabling Vocoder...");
+                if (currentEffect) {
+                    effectsChain.disconnect(currentEffect);
+                    currentEffect.disconnect();
+                }
+                if (activeSource) sourceNodes[activeSource].disconnect();
+
+                carrierSource.connect(vocoder);
+                modulatorSource.connect(vocoder.get('modulator'));
+                vocoder.connect(masterCompressor);
+                log("Vocoder is now active.");
+            } else {
+                log("Disabling Vocoder...");
+                if (currentEffect) {
+                    effectsChain.connect(currentEffect);
+                    currentEffect.connect(masterCompressor);
+                } else {
+                    effectsChain.connect(masterCompressor);
+                }
+                if (activeSource) sourceNodes[activeSource].connect(effectsChain);
+                vocoder.disconnect();
+            }
+        });
+
+        // Master Volume
+        masterVolumeSlider.addEventListener('input', (e) => {
+            if (!isInitialized) return;
+            const volume = parseFloat(e.target.value);
+            Tone.Destination.volume.value = volume;
+        });
+
+        // Momentary Switches
+        lfoSurgeBtn.addEventListener('mousedown', () => {
+            if (!isInitialized) return log("Please start the audio engine first.");
+            lfoSurge.connect(lfoSurgeGain.gain).start();
+            log("LFO Surge activated.");
+        });
+        lfoSurgeBtn.addEventListener('mouseup', () => {
+            lfoSurge.stop();
+            log("LFO Surge deactivated.");
+        });
+        
+        reverseFilterBtn.addEventListener('mousedown', () => {
+            if (!isInitialized) return log("Please start the audio engine first.");
+            effectsChain.disconnect(masterCompressor);
+            effectsChain.connect(reverseFilter);
+            reverseFilter.connect(masterCompressor);
+            reverseFilterLFO.start();
+            log("Reverse Filter activated.");
+        });
+        reverseFilterBtn.addEventListener('mouseup', () => {
+            reverseFilterLFO.stop();
+            effectsChain.disconnect(reverseFilter);
+            effectsChain.connect(masterCompressor);
+            log("Reverse Filter deactivated.");
+        });
+        
+        zeroCrossingBtn.addEventListener('mousedown', () => {
+            if (!isInitialized) return log("Please start the audio engine first.");
+            effectsChain.connect(zeroCrossingShaper);
+            log("Zero-Crossing Distortion activated.");
+        });
+        zeroCrossingBtn.addEventListener('mouseup', () => {
+            effectsChain.disconnect(zeroCrossingShaper);
+            log("Zero-Crossing Distortion deactivated.");
+        });
+
+        // Recording
+        recordBtn.addEventListener('click', async () => {
+            if (!isInitialized) return log("Please start the audio engine first.");
+            if (!isRecording) {
+                try {
+                    await recorder.start();
+                    isRecording = true;
+                    recordBtn.innerText = "Stop Recording";
+                    recordBtn.classList.remove('bg-green-600');
+                    recordBtn.classList.add('bg-red-600');
+                    downloadRecordingBtn.style.display = 'none';
+                    log("Recording started...");
+                } catch (e) {
+                    log(`Recording start failed: ${e.message}`);
+                }
+            } else {
+                try {
+                    const recording = await recorder.stop();
+                    isRecording = false;
+                    recordBtn.innerText = "Record Output";
+                    recordBtn.classList.remove('bg-red-600');
+                    recordBtn.classList.add('bg-green-600');
+                    const url = URL.createObjectURL(new Blob([recording], { type: 'audio/webm' }));
+                    downloadRecordingBtn.href = url;
+                    downloadRecordingBtn.download = `astral-projector-recording-${Date.now()}.webm`;
+                    downloadRecordingBtn.style.display = 'block';
+                    log("Recording stopped. File is ready for download.");
+                } catch (e) {
+                    log(`Recording stop failed: ${e.message}`);
+                }
+            }
+        });
+        
+        // MIDI
+        midiConnectBtn.addEventListener('click', () => {
+            if (navigator.requestMIDIAccess) {
+                navigator.requestMIDIAccess().then(onMIDISuccess, onMIDIFailure);
+            } else {
+                log("Web MIDI API is not supported in this browser.");
+            }
+        });
+        
+        function onMIDISuccess(access) {
+            midi = access;
+            midiStatus.innerText = "MIDI Status: Connected";
+            log("MIDI access granted.");
+            const inputs = midi.inputs.values();
+            for (let input of inputs) {
+                input.onmidimessage = onMIDIMessage;
+                log(`Connected to MIDI device: ${input.name}`);
+            }
+        }
+        
+        function onMIDIFailure() {
+            midiStatus.innerText = "MIDI Status: Connection Failed";
+            log("Failed to get MIDI access.");
+        }
+        
+        const midiSources = ['instruments', 'sampler'];
+        midiSourceBtn.addEventListener('click', () => {
+            midiSourceIndex = (midiSourceIndex + 1) % midiSources.length;
+            const currentSource = midiSources[midiSourceIndex];
+            log(`MIDI keys now controlling: ${currentSource}`);
+        });
+
+        function onMIDIMessage(message) {
+            const command = message.data[0];
+            const noteOrCC = message.data[1];
+            const velocity = message.data[2];
+
+            // Note On/Off
+            if (command === 144) { // Note On
+                const note = Tone.Midi(noteOrCC).toNote();
+                if (midiSourceIndex === 0) {
+                    const synthName = instrumentSelect.value;
+                    const synth = instruments.get(synthName);
+                    if (synth) {
+                        synth.triggerAttackRelease(note, "8n", undefined, velocity / 127);
+                    }
+                } else if (midiSourceIndex === 1) {
+                    if (sampler.loaded) {
+                        sampler.triggerAttackRelease(note, "8n", undefined, velocity / 127);
+                    } else {
+                        log("Sampler not loaded yet.");
+                    }
+                }
+            } else if (command === 128) { // Note Off
+            }
+
+            // CC Messages
+            if (command === 176) { // CC messages on channel 1
+                mapMidiCC(noteOrCC, velocity);
+            }
+        }
+        
+        function populateMidiCcDropdown() {
+            midiCcEffectSelect.innerHTML = '';
+            for (const effect in midiCcMappings) {
+                const option = document.createElement('option');
+                option.value = effect;
+                option.textContent = effect;
+                midiCcEffectSelect.appendChild(option);
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', (event) => {
+            log("DOM Loaded. Awaiting 'Start Audio' to initialize Tone.js.");
+            populateMidiCcDropdown();
+        });
+
+    </script>
+</body>
+</html>
